@@ -51,7 +51,8 @@ if "meta" not in st.session_state:
         "user_info": "",
         "bot_info": "",
         "bot_name": "",
-        "user_name": ""
+        "user_name": "",
+        "user_style": "二次元",
     }
 
 
@@ -109,8 +110,8 @@ def draw_new_image():
         st.error("调用chatglm生成Cogview prompt出错")
         return
     
-    # TODO: 加上风格选项
-    image_prompt = '二次元风格。' + image_prompt.strip()
+    # 风格选项
+    image_prompt = st.session_state["meta"]["user_style"] + image_prompt.strip()
     
     print(f"image_prompt = {image_prompt}")
     n_retry = 3
@@ -138,6 +139,7 @@ def draw_new_image():
 button_labels = {
     "clear_meta": "清空人设",
     "clear_history": "清空对话历史",
+    "user_style": "人物风格",
     "gen_picture": "生成图片"
 }
 if debug:
@@ -160,7 +162,8 @@ with st.container():
                 "user_info": "",
                 "bot_info": "",
                 "bot_name": "",
-                "user_name": ""
+                "user_name": "",
+                "user_style": "二次元"
             }
             st.rerun()
 
@@ -172,6 +175,9 @@ with st.container():
     
     with button_key_to_col["gen_picture"]:
         gen_picture = st.button(button_labels["gen_picture"], key="gen_picture")
+
+    with button_key_to_col["user_style"]:
+        st.selectbox("人物风格", ["二次元", "3D"], on_change=lambda : st.session_state["meta"].update(user_style=st.session_state["user_style"]))
 
     if debug:
         with button_key_to_col["show_api_key"]:
@@ -245,8 +251,8 @@ def start_chat():
         else:
             answer = bot_response
             st.session_state["history"].append(TextMsg({"role": "assistant", "content": bot_response}))
-        with open("history.txt", "w") as f:
-            f.writelines(f"Q: {query}\n")
-            f.writelines(f"A: {answer}\n")
+        with open("history.txt", "a") as f:
+            f.write(f"Q: {query}\n")
+            f.write(f"A: {answer}\n")
 
 start_chat()
